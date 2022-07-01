@@ -215,3 +215,27 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,windows
+
+
+### dotenv ###
+.env
+
+### source directory ###
+Source
+
+### JSON ###
+package-lock.json
+
+### Cash ###
+__pycache__
+
+### Logs ###
+logs.txt
+
+### Xlsx ###
+data_with_spaces.xlsx
+
+### Directories ###
+GENERATED_PPTX
+GENERATED_PDF
+resources
