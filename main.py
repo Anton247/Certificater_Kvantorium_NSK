@@ -46,7 +46,7 @@ def start(input_file_name, output_file_name, send):
     # add handler to logger object
     logger.addHandler(fh)
     
-    logger.info("Program started")
+    logger.info("\n\nProgram started")
     
     
 
@@ -86,9 +86,10 @@ def start(input_file_name, output_file_name, send):
 
         os.makedirs(f"GENERATED_PPTX/{data[0]['date']}", exist_ok=True)
         os.makedirs(f"GENERATED_PDF/{data[0]['date']}", exist_ok=True)
-
-        logger.info("Создана папка: ", f"GENERATED_PPTX/{data[0]['date']}")
-        logger.info("Создана папка: ", f"GENERATED_PDF/{data[0]['date']}")
+        s1 = "Создана папка: " +  f"GENERATED_PPTX/{data[0]['date']}"
+        s2 = "Создана папка: " + f"GENERATED_PDF/{data[0]['date']}"
+        logger.info(s1)
+        logger.info(s2)
     except Exception as e:
         logger.error(e)
         exit(-20)
@@ -103,7 +104,7 @@ def start(input_file_name, output_file_name, send):
     if send:
         try:
             smtps = login()
-            logger.info("Подключено к SMTPS успещно")
+            logger.info("Подключено к SMTPS успешно")
         except Exception as e:
             logger.error(e)
 
@@ -112,17 +113,24 @@ def start(input_file_name, output_file_name, send):
         powerpoint = init_powerpoint()
         pptx_to_pdf(file_name[indexOf(data, loc)], loc['date'], powerpoint)
         print(file_name[indexOf(data, loc)], loc['email'], ' - готов' )
+        s = str(file_name[indexOf(data, loc)]) + " " + str(loc['email']) + ' - готов'
+        logger.info(s)
         if send:
             try:
                 send_email(loc['email'], smtps, loc['date'], file_name[indexOf(data, loc)])
                 print(file_name[indexOf(data, loc)], loc['email'], ' - отправлен' )
+                s = str(file_name[indexOf(data, loc)]) + " " + str(loc['email']) + ' - отправлен'
+                logger.info(s)
             except SMTPAuthenticationError:
                 eel.raise_error("Не верно указана почта или пароль от почты\nЕсли все указано верно, то ваша почта не поддержиаватся") # Сделать ссылку
+                logger.warning("Не верно указана почта или пароль от почты\nЕсли все указано верно, то ваша почта не поддержиаватся")
                 send = False
             except KeyError:
                 eel.raise_error("В Excel документе нет поля email, сертификаты не были отправлены")
+                logger.warning("В Excel документе нет поля email, сертификаты не были отправлены")
                 send = False
             except Exception as e:
+                logger.error(e)
                 print("\n\n")
                 print("ИСКЛЮЧЕНИЕ!!!!!!!!!!!!!!!!!!!!", e)
                 print("\n\n")
@@ -131,16 +139,22 @@ def start(input_file_name, output_file_name, send):
                     STOP = False
                     powerpoint.Quit()
                     smtps.quit()
+                    logger.info("Остановка на 5 секунд")
                     time.sleep(5)
+                    logger.info("Возобновление работы программы")
                     try:
                         powerpoint = init_powerpoint()
                         smtps = login()
                         send_email(loc['email'], smtps, loc['date'], file_name[indexOf(data, loc)])
                         print(file_name[indexOf(data, loc)], loc['email'], ' - отправлен' )
+                        s = str(file_name[indexOf(data, loc)]) + " " + str(loc['email']) + ' - отправлен'
+                        logger.info(s)
                     except Exception as e:
                         print("\n\n")
                         print("ИСКЛЮЧЕНИЕ!!!!!!!!!!!!!!!!!!!!", e)
                         print("\n\n")
+                        logger.error("Исключение внутри цикла")
+                        logger.error(e)
                         STOP = True
                     if STOP == False:
                         break
@@ -149,8 +163,8 @@ def start(input_file_name, output_file_name, send):
     powerpoint.Quit()
     time2 = time.perf_counter()
     print(f"Finished in {time2-time1} second(s)")
-    
-    logger.info("Done!", "\n", f"Finished in {time2-time1} second(s)")
+    s = "Done!" + "\n"+ f"Finished in {time2-time1} second(s)\n\n"
+    logger.info(s)
 
 if __name__ == "__main__":
     eel.start("HomePage.html", geometry={"size": (600, 400), "position": (400, 600)}, port=8002)
